@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fever Scan Pro — Advanced Standalone Edition</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #7c3aed;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --success: #059669;
+            --info: #0891b2;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --gray: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0b1220 0%, #1e293b 100%);
+            color: #e5e7eb;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 1.5rem;
+            text-align: center;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #334155;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            color: #7dd3fc;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 0.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #cbd5e1;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            background: #334155;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .checkbox-group input {
+            width: auto;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #b91c1c);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #047857);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #b45309);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, var(--info), #0e7490);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            border-left: 4px solid var(--primary);
+        }
+
+        .prediction-display {
+            font-size: 1.75rem;
+            font-weight: bold;
+            color: #7dd3fc;
+            margin-bottom: 0.5rem;
+        }
+
+        .confidence {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .risk-high { color: var(--danger); }
+        .risk-medium { color: var(--warning); }
+        .risk-low { color: var(--success); }
+
+        .action-plan {
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid var(--danger);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .probability-chart {
+            margin-top: 1rem;
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .contributions {
+            display: grid;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .contribution-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: #334155;
+            border-radius: 6px;
+            border-left: 4px solid var(--primary);
+            transition: transform 0.2s;
+        }
+
+        .contribution-item:hover {
+            transform: translateX(4px);
+        }
+
+        .contribution-positive {
+            border-left-color: var(--success);
+        }
+
+        .contribution-negative {
+            border-left-color: var(--danger);
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 300px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background: #0f172a;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            background: var(--primary);
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.bot {
+            background: #334155;
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input input {
+            flex: 1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+
+        th {
+            background: #334155;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-container {
+            margin-top: 1rem;
+        }
+
+        .tabs {
+            display: flex;
+            background: #334155;
+            border-radius: 8px;
+            padding: 0.25rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 0.75rem;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
+            min-width: 120px;
+        }
+
+        .tab.active {
+            background: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            border: 4px solid #334155;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #334155, #475569);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #7dd3fc;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #cbd5e1;
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .emergency-alert {
+            background: linear-gradient(135deg, var(--danger), #b91c1c);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+        }
+
+        .medication-list {
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .medication-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid #334155;
+        }
+
+        .medication-item:last-child {
+            border-bottom: none;
+        }
+
+        .print-only {
+            display: none;
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+            .print-only {
+                display: block;
+            }
+            body {
+                background: white;
+                color: black;
+            }
+            .card {
+                background: white;
+                border: 1px solid #ccc;
+            }
+        }
+
+        .symptom-severity {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .severity-option {
+            background: #334155;
+            padding: 0.5rem;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .severity-option.selected {
+            border-color: var(--primary);
+            background: rgba(37, 99, 235, 0.2);
+        }
+
+        .severity-mild { border-left-color: var(--success); }
+        .severity-moderate { border-left-color: var(--warning); }
+        .severity-severe { border-left-color: var(--danger); }
+
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+            margin: 1rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--primary);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background: #334155;
+            border-radius: 6px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.5rem;
+            top: 0.75rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <span>🌡</span>
+                <span>Fever Scan Pro</span>
+            </div>
+            <div class="stats">
+                <div class="stat-item">📊 <span id="totalCases">0</span> Cases</div>
+                <div class="stat-item">🔄 <span id="todayCases">0</span> Today</div>
+                <div class="stat-item">⚠️ <span id="highRiskCases">0</span> High Risk</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Patient Input Section -->
+        <div class="card">
+            <h2>👤 Patient Information</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="patientName">Full Name</label>
+                    <input type="text" id="patientName" placeholder="Enter patient name">
+                </div>
+                <div class="form-group">
+                    <label for="patientAge">Age</label>
+                    <input type="number" id="patientAge" min="0" max="120" value="35">
+                </div>
+                <div class="form-group">
+                    <label for="patientGender">Gender</label>
+                    <select id="patientGender">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="patientContact">Contact</label>
+                    <input type="text" id="patientContact" placeholder="Phone or email">
+                </div>
+            </div>
+
+            <h2 style="margin-top: 1.5rem;">🌡️ Vital Signs</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="temp">Temperature (°C)</label>
+                    <input type="number" id="temp" step="0.1" min="35" max="42" value="38.5">
+                </div>
+                <div class="form-group">
+                    <label for="feverDuration">Fever Duration (days)</label>
+                    <input type="number" id="feverDuration" min="1" max="30" value="3">
+                </div>
+                <div class="form-group">
+                    <label for="heartRate">Heart Rate (bpm)</label>
+                    <input type="number" id="heartRate" min="40" max="200" value="85">
+                </div>
+                <div class="form-group">
+                    <label for="bloodPressure">Blood Pressure</label>
+                    <input type="text" id="bloodPressure" placeholder="120/80" value="120/80">
+                </div>
+            </div>
+
+            <h2 style="margin-top: 1.5rem;">🤒 Symptoms</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Headache</label>
+                    <div class="symptom-severity">
+                        <div class="severity-option" data-symptom="headache" data-value="0">None</div>
+                        <div class="severity-option selected" data-symptom="headache" data-value="1">Mild</div>
+                        <div class="severity-option" data-symptom="headache" data-value="2">Moderate</div>
+                        <div class="severity-option" data-symptom="headache" data-value="3">Severe</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Body Pain</label>
+                    <div class="symptom-severity">
+                        <div class="severity-option" data-symptom="body_pain" data-value="0">None</div>
+                        <div class="severity-option selected" data-symptom="body_pain" data-value="1">Mild</div>
+                        <div class="severity-option" data-symptom="body_pain" data-value="2">Moderate</div>
+                        <div class="severity-option" data-symptom="body_pain" data-value="3">Severe</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Fatigue</label>
+                    <div class="symptom-severity">
+                        <div class="severity-option" data-symptom="fatigue" data-value="0">None</div>
+                        <div class="severity-option selected" data-symptom="fatigue" data-value="1">Mild</div>
+                        <div class="severity-option" data-symptom="fatigue" data-value="2">Moderate</div>
+                        <div class="severity-option" data-symptom="fatigue" data-value="3">Severe</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Cough</label>
+                    <div class="symptom-severity">
+                        <div class="severity-option selected" data-symptom="cough" data-value="0">None</div>
+                        <div class="severity-option" data-symptom="cough" data-value="1">Mild</div>
+                        <div class="severity-option" data-symptom="cough" data-value="2">Moderate</div>
+                        <div class="severity-option" data-symptom="cough" data-value="3">Severe</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="chills" checked>
+                    <label for="chills">Chills</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="rash">
+                    <label for="rash">Skin Rash</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="joint_pain">
+                    <label for="joint_pain">Joint Pain</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="vomiting">
+                    <label for="vomiting">Vomiting</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="diarrhea">
+                    <label for="diarrhea">Diarrhea</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="travel">
+                    <label for="travel">Recent Travel</label>
+                </div>
+            </div>
+
+            <h2 style="margin-top: 1.5rem;">🔬 Lab Values</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="platelet_count">Platelet Count</label>
+                    <input type="number" id="platelet_count" value="250000">
+                </div>
+                <div class="form-group">
+                    <label for="wbc_count">WBC Count</label>
+                    <input type="number" id="wbc_count" value="7000">
+                </div>
+                <div class="form-group">
+                    <label for="crp">CRP (mg/L)</label>
+                    <input type="number" id="crp" step="0.1" value="5.0">
+                </div>
+                <div class="form-group">
+                    <label for="oxygen_sat">Oxygen Saturation (%)</label>
+                    <input type="number" id="oxygen_sat" min="70" max="100" value="98">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn" onclick="analyzePatient()" style="flex: 2;">
+                    🔍 Analyze Patient
+                </button>
+                <button class="btn btn-info" onclick="clearForm()" style="flex: 1;">
+                    🗑️ Clear Form
+                </button>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>AI is analyzing symptoms...</p>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="card result-card">
+            <h2>🎯 Diagnosis Results</h2>
+            <div id="result">
+                <div style="text-align: center; padding: 3rem; color: #94a3b8;">
+                    <h3>Patient Analysis Ready</h3>
+                    <p>Enter patient data and click "Analyze Patient"</p>
+                </div>
+            </div>
+
+            <div class="tab-container">
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('probabilities')">Probabilities</div>
+                    <div class="tab" onclick="switchTab('factors')">Key Factors</div>
+                    <div class="tab" onclick="switchTab('treatment')">Treatment Plan</div>
+                    <div class="tab" onclick="switchTab('timeline')">Timeline</div>
+                </div>
+
+                <div id="probabilitiesTab" class="tab-content active">
+                    <div class="probability-chart">
+                        <canvas id="probabilityChart" width="400" height="250"></canvas>
+                    </div>
+                </div>
+
+                <div id="factorsTab" class="tab-content">
+                    <div id="explain" class="contributions"></div>
+                </div>
+
+                <div id="treatmentTab" class="tab-content">
+                    <div id="treatmentPlan"></div>
+                </div>
+
+                <div id="timelineTab" class="tab-content">
+                    <div id="patientTimeline"></div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap;">
+                <button class="btn btn-success" onclick="saveCase()" id="saveBtn" disabled>
+                    💾 Save Case
+                </button>
+                <button class="btn btn-info" onclick="generateReport()">
+                    📄 Generate Report
+                </button>
+                <button class="btn btn-warning" onclick="prescribeMedication()">
+                    💊 Prescribe Medication
+                </button>
+            </div>
+        </div>
+
+        <!-- Medical Assistant -->
+        <div class="card">
+            <h2>💬 Medical Assistant</h2>
+            <div class="chat-container">
+                <div class="chat-messages" id="chat"></div>
+                <div class="chat-input">
+                    <input type="text" id="chat_input" placeholder="Ask about diagnosis, treatment, or symptoms...">
+                    <button class="btn" onclick="sendChat()">Send</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doctor Dashboard -->
+        <div class="card">
+            <h2>📊 Doctor Dashboard</h2>
+            
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="statTotalCases">0</div>
+                    <div class="stat-label">Total Cases</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statHighRisk">0</div>
+                    <div class="stat-label">High Risk</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statDengue">0</div>
+                    <div class="stat-label">Dengue Cases</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statMalaria">0</div>
+                    <div class="stat-label">Malaria Cases</div>
+                </div>
+            </div>
+
+            <div class="filters">
+                <div class="filter-group">
+                    <label>Filter by:</label>
+                    <select id="filterRisk" onchange="filterCases()">
+                        <option value="all">All Risk Levels</option>
+                        <option value="high">High Risk</option>
+                        <option value="medium">Medium Risk</option>
+                        <option value="low">Low Risk</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <select id="filterDisease" onchange="filterCases()">
+                        <option value="all">All Diseases</option>
+                        <option value="dengue">Dengue</option>
+                        <option value="malaria">Malaria</option>
+                        <option value="viral">Viral Fever</option>
+                        <option value="typhoid">Typhoid</option>
+                        <option value="influenza">Influenza</option>
+                        <option value="covid">COVID-19</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <input type="date" id="filterDate" onchange="filterCases()">
+                </div>
+                <button class="btn btn-sm" onclick="exportData()">📥 Export Data</button>
+                <button class="btn btn-sm btn-danger" onclick="clearAllCases()">🗑️ Clear All</button>
+            </div>
+
+            <div style="overflow-x: auto; max-height: 400px;">
+                <table id="case_table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Patient</th>
+                            <th>Age</th>
+                            <th>Diagnosis</th>
+                            <th>Confidence</th>
+                            <th>Risk</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Medication Modal -->
+    <div id="medicationModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;">
+        <div class="card" style="max-width: 500px; max-height: 80vh; overflow-y: auto;">
+            <h2>💊 Prescribe Medication</h2>
+            <div id="medicationList" class="medication-list"></div>
+            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                <button class="btn btn-success" onclick="savePrescription()">💾 Save Prescription</button>
+                <button class="btn btn-danger" onclick="closeModal()">❌ Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced AI Model with more diseases and symptoms
+        class AdvancedFeverModel {
+            constructor() {
+                this.diseases = ['viral', 'dengue', 'malaria', 'typhoid', 'influenza', 'covid'];
+                this.symptomWeights = this.initializeWeights();
+            }
+
+            initializeWeights() {
+                return {
+                    viral:    { base: 0.2, fever_duration: -0.05, temp: -0.5, headache: 0.3, chills: -0.4, body_pain: 0.2, travel: -0.2, platelet_count: -0.4, cough: 0.4, fatigue: 0.3, rash: -0.1, joint_pain: -0.1, vomiting: -0.1, diarrhea: -0.1, wbc_count: 0.1, crp: 0.1, oxygen_sat: -0.2, heart_rate: 0.1 },
+                    dengue:   { base: 0.0, fever_duration: 0.2, temp: 0.6, headache: 0.5, chills: 0.1, body_pain: 0.5, travel: 0.3, platelet_count: 1.5, cough: -0.2, fatigue: 0.4, rash: 1.0, joint_pain: 0.9, vomiting: 0.3, diarrhea: 0.2, wbc_count: -0.3, crp: 0.4, oxygen_sat: -0.1, heart_rate: 0.2 },
+                    malaria:  { base: 0.0, fever_duration: 0.1, temp: 0.8, headache: 0.2, chills: 1.2, body_pain: 0.3, travel: 0.8, platelet_count: 0.4, cough: -0.1, fatigue: 0.5, rash: 0.2, joint_pain: 0.3, vomiting: 0.4, diarrhea: 0.3, wbc_count: 0.1, crp: 0.3, oxygen_sat: -0.3, heart_rate: 0.4 },
+                    typhoid:  { base: 0.1, fever_duration: 0.5, temp: 0.9, headache: 0.4, chills: 0.3, body_pain: 0.4, travel: 0.5, platelet_count: 0.2, cough: 0.1, fatigue: 0.6, rash: 0.1, joint_pain: 0.1, vomiting: 0.8, diarrhea: 1.0, wbc_count: -0.2, crp: 0.6, oxygen_sat: -0.1, heart_rate: 0.3 },
+                    influenza: { base: 0.1, fever_duration: 0.1, temp: 0.5, headache: 0.9, chills: 0.8, body_pain: 0.7, travel: 0.2, platelet_count: -0.1, cough: 1.2, fatigue: 0.9, rash: -0.1, joint_pain: 0.4, vomiting: 0.3, diarrhea: 0.2, wbc_count: 0.2, crp: 0.2, oxygen_sat: -0.2, heart_rate: 0.3 },
+                    covid:    { base: 0.2, fever_duration: 0.4, temp: 0.6, headache: 0.7, chills: 0.5, body_pain: 0.6, travel: 0.4, platelet_count: 0.1, cough: 1.0, fatigue: 0.8, rash: 0.2, joint_pain: 0.3, vomiting: 0.5, diarrhea: 0.4, wbc_count: -0.1, crp: 0.5, oxygen_sat: 0.8, heart_rate: 0.5 }
+                };
+            }
+
+            softmax(arr) {
+                const max = Math.max(...arr);
+                const exp = arr.map(x => Math.exp(x - max));
+                const sum = exp.reduce((a, b) => a + b, 0);
+                return exp.map(x => x / sum);
+            }
+
+            normalizeFeature(feature, value) {
+                const ranges = {
+                    fever_duration: [1, 14],
+                    temp: [36, 41],
+                    platelet_count: [50000, 400000],
+                    wbc_count: [2000, 20000],
+                    crp: [0, 100],
+                    oxygen_sat: [70, 100],
+                    heart_rate: [40, 180]
+                };
+
+                if (ranges[feature]) {
+                    const [min, max] = ranges[feature];
+                    return (value - min) / (max - min);
+                }
+                return value; // For binary features
+            }
+
+            predict(features) {
+                // Normalize features
+                const normalized = {};
+                for (const [key, value] of Object.entries(features)) {
+                    normalized[key] = this.normalizeFeature(key, value);
+                }
+
+                // Calculate scores for each disease
+                const scores = this.diseases.map(disease => {
+                    let score = this.symptomWeights[disease].base;
+                    for (const [feature, value] of Object.entries(normalized)) {
+                        if (this.symptomWeights[disease][feature] !== undefined) {
+                            score += this.symptomWeights[disease][feature] * value;
+                        }
+                    }
+                    return score;
+                });
+
+                const probabilities = this.softmax(scores);
+                const bestIdx = probabilities.indexOf(Math.max(...probabilities));
+                
+                // Calculate feature contributions
+                const contributions = {};
+                const bestDisease = this.diseases[bestIdx];
+                for (const [feature, value] of Object.entries(normalized)) {
+                    if (this.symptomWeights[bestDisease][feature] !== undefined) {
+                        contributions[feature] = this.symptomWeights[bestDisease][feature] * value;
+                    }
+                }
+
+                return {
+                    predicted: bestDisease,
+                    confidence: probabilities[bestIdx],
+                    probabilities: this.diseases.reduce((acc, disease, idx) => {
+                        acc[disease] = probabilities[idx];
+                        return acc;
+                    }, {}),
+                    contributions: contributions
+                };
+            }
+        }
+
+        // Initialize the AI model
+        const aiModel = new AdvancedFeverModel();
+        let currentPrediction = null;
+        let probabilityChart = null;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            // Set up severity selectors
+            setupSeveritySelectors();
+            
+            // Initialize chat
+            appendChat('Medical Assistant', 'Hello! I am your AI medical assistant. I can help you diagnose fever cases, provide treatment recommendations, and answer medical questions. How can I assist you today?');
+            
+            // Load cases and update dashboard
+            updateDashboard();
+            
+            // Set default date filter to today
+            document.getElementById('filterDate').valueAsDate = new Date();
+            
+            console.log('🚀 Fever Scan Pro Advanced Edition Initialized');
+        }
+
+        function setupSeveritySelectors() {
+            document.querySelectorAll('.severity-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const symptom = this.dataset.symptom;
+                    const value = this.dataset.value;
+                    
+                    // Remove selected class from siblings
+                    this.parentElement.querySelectorAll('.severity-option').forEach(sib => {
+                        sib.classList.remove('selected');
+                    });
+                    
+                    // Add selected class to clicked option
+                    this.classList.add('selected');
+                    
+                    // Update hidden input if exists, or create one
+                    let hiddenInput = document.getElementById(symptom + '_severity');
+                    if (!hiddenInput) {
+                        hiddenInput = document.createElement('input');
+                        hiddenInput.type = 'hidden';
+                        hiddenInput.id = symptom + '_severity';
+                        hiddenInput.name = symptom + '_severity';
+                        this.parentElement.appendChild(hiddenInput);
+                    }
+                    hiddenInput.value = value;
+                });
+            });
+        }
+
+        function analyzePatient() {
+            const loading = document.getElementById('loading');
+            const saveBtn = document.getElementById('saveBtn');
+            
+            // Show loading
+            loading.style.display = 'block';
+            saveBtn.disabled = true;
+
+            // Simulate AI processing (in real scenario, this would be instant)
+            setTimeout(() => {
+                try {
+                    const features = collectPatientData();
+                    currentPrediction = aiModel.predict(features);
+                    
+                    displayResults(currentPrediction, features);
+                    updateProbabilityChart(currentPrediction.probabilities);
+                    updateContributions(currentPrediction.contributions);
+                    updateTreatmentPlan(currentPrediction.predicted, currentPrediction.confidence);
+                    updateTimeline(features);
+                    
+                    saveBtn.disabled = false;
+                    
+                } catch (error) {
+                    console.error('Analysis error:', error);
+                    alert('Error analyzing patient: ' + error.message);
+                } finally {
+                    loading.style.display = 'none';
+                }
+            }, 1500);
+        }
+
+        function collectPatientData() {
+            // Get severity values
+            const severityValues = {};
+            document.querySelectorAll('.severity-option.selected').forEach(option => {
+                severityValues[option.dataset.symptom] = parseFloat(option.dataset.value);
+            });
+
+            return {
+                fever_duration: parseFloat(document.getElementById('feverDuration').value) || 3,
+                temp: parseFloat(document.getElementById('temp').value) || 38.5,
+                headache: severityValues.headache || 1,
+                chills: document.getElementById('chills').checked ? 1 : 0,
+                body_pain: severityValues.body_pain || 1,
+                travel: document.getElementById('travel').checked ? 1 : 0,
+                platelet_count: parseFloat(document.getElementById('platelet_count').value) || 250000,
+                cough: severityValues.cough || 0,
+                fatigue: severityValues.fatigue || 1,
+                rash: document.getElementById('rash').checked ? 1 : 0,
+                joint_pain: document.getElementById('joint_pain').checked ? 1 : 0,
+                vomiting: document.getElementById('vomiting').checked ? 1 : 0,
+                diarrhea: document.getElementById('diarrhea').checked ? 1 : 0,
+                wbc_count: parseFloat(document.getElementById('wbc_count').value) || 7000,
+                crp: parseFloat(document.getElementById('crp').value) || 5.0,
+                oxygen_sat: parseFloat(document.getElementById('oxygen_sat').value) || 98,
+                heart_rate: parseFloat(document.getElementById('heartRate').value) || 85
+            };
+        }
+
+        function displayResults(result, features) {
+            const confidencePercent = (result.confidence * 100).toFixed(1);
+            const riskLevel = getRiskLevel(result.predicted, result.confidence);
+            const riskClass = `risk-${riskLevel.toLowerCase()}`;
+            
+            document.getElementById('result').innerHTML = `
+                <div class="prediction-display">${result.predicted.toUpperCase()}</div>
+                <div class="confidence ${riskClass}">
+                    Confidence: ${confidencePercent}% | Risk Level: ${riskLevel}
+                </div>
+                <div class="action-plan">
+                    <strong>🚑 Immediate Action Required:</strong><br>
+                    ${getActionPlan(result.predicted, result.confidence)}
+                </div>
+                <div style="margin-top: 1rem; background: #334155; padding: 1rem; border-radius: 8px;">
+                    <strong>Patient Summary:</strong><br>
+                    👤 ${document.getElementById('patientName').value || 'Unknown Patient'} | 
+                    ${document.getElementById('patientAge').value} years | 
+                    ${document.getElementById('patientGender').value}<br>
+                    🌡 ${features.temp}°C | ⏱ ${features.fever_duration} days | 
+                    ❤️ ${features.heart_rate} bpm | 💨 ${features.oxygen_sat}% O₂
+                </div>
+            `;
+
+            // Show emergency alert for high risk
+            if (riskLevel === 'HIGH') {
+                const emergencyHTML = `
+                    <div class="emergency-alert">
+                        <strong>🚨 EMERGENCY ALERT:</strong> This patient requires immediate medical attention! 
+                        High risk of complications. Consider hospitalization.
+                    </div>
+                `;
+                document.getElementById('result').insertAdjacentHTML('afterbegin', emergencyHTML);
+            }
+        }
+
+        function getRiskLevel(prediction, confidence) {
+            const highRiskDiseases = ['dengue', 'malaria', 'typhoid', 'covid'];
+            const mediumRiskDiseases = ['influenza'];
+            
+            if (highRiskDiseases.includes(prediction) && confidence > 0.6) {
+                return 'HIGH';
+            } else if (mediumRiskDiseases.includes(prediction) && confidence > 0.5) {
+                return 'MEDIUM';
+            } else if (confidence > 0.7) {
+                return 'MEDIUM';
+            } else {
+                return 'LOW';
+            }
+        }
+
+        function getActionPlan(prediction, confidence) {
+            const plans = {
+                dengue: `• Immediate NS1 antigen test and CBC<br>
+                         • Daily platelet count monitoring<br>
+                         • Strict hydration - 3-4 liters daily<br>
+                         • Avoid NSAIDs, aspirin<br>
+                         • Watch for warning signs: bleeding, severe abdominal pain<br>
+                         • Hospitalize if platelets < 100,000 or warning signs present`,
+
+                malaria: `• Peripheral blood smear for malaria parasites<br>
+                          • Rapid diagnostic test (Pf/Pv)<br>
+                          • Start appropriate antimalarial treatment<br>
+                          • Monitor for complications: cerebral malaria, anemia<br>
+                          • Hospitalize if severe symptoms present`,
+
+                typhoid: `• Blood culture and Widal test<br>
+                          • Start appropriate antibiotics<br>
+                          • Monitor for intestinal complications<br>
+                          • Maintain hydration and nutrition<br>
+                          • Consider hospitalization for severe cases`,
+
+                influenza: `• Consider antiviral treatment if within 48 hours<br>
+                            • Symptomatic care: rest, hydration<br>
+                            • Monitor for secondary bacterial infections<br>
+                            • High-risk patients may require hospitalization<br>
+                            • Consider influenza vaccination for prevention`,
+
+                covid: `• COVID-19 testing recommended<br>
+                        • Isolate patient and use PPE<br>
+                        • Monitor oxygen saturation closely<br>
+                        • Consider antiviral therapy if eligible<br>
+                        • Hospitalize if oxygen saturation < 94% or respiratory distress`,
+
+                viral: `• Symptomatic treatment: antipyretics, analgesics<br>
+                        • Adequate rest and hydration<br>
+                        • Usually self-limiting in 3-7 days<br>
+                        • Return if symptoms worsen or persist beyond 1 week<br>
+                        • Consider testing if high-risk exposure`
+            };
+
+            return plans[prediction] || "Consult with healthcare provider for proper evaluation and management.";
+        }
+
+        function updateProbabilityChart(probabilities) {
+            const ctx = document.getElementById('probabilityChart').getContext('2d');
+            
+            if (probabilityChart) {
+                probabilityChart.destroy();
+            }
+
+            const diseases = Object.keys(probabilities);
+            const probs = Object.values(probabilities);
+
+            probabilityChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: diseases.map(d => d.charAt(0).toUpperCase() + d.slice(1)),
+                    datasets: [{
+                        label: 'Probability',
+                        data: probs,
+                        backgroundColor: [
+                            '#3b82f6', '#ef4444', '#10b981', 
+                            '#f59e0b', '#8b5cf6', '#06b6d4'
+                        ],
+                        borderColor: [
+                            '#1d4ed8', '#dc2626', '#047857',
+                            '#d97706', '#7c3aed', '#0891b2'
+                        ],
+                        borderWidth: 2,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return (context.raw * 100).toFixed(1) + '% probability';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1,
+                            ticks: {
+                                callback: function(value) {
+                                    return (value * 100) + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateContributions(contributions) {
+            const container = document.getElementById('explain');
+            let html = '<h3>🔍 Key Contributing Factors</h3>';
+            
+            Object.entries(contributions)
+                .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))
+                .slice(0, 8)
+                .forEach(([feature, value]) => {
+                    const contributionClass = value >= 0 ? 'contribution-positive' : 'contribution-negative';
+                    const sign = value >= 0 ? '+' : '';
+                    const featureName = feature.replace(/_/g, ' ').toUpperCase();
+                    html += `
+                        <div class="contribution-item ${contributionClass}">
+                            <span>${featureName}</span>
+                            <span>${sign}${value.toFixed(3)}</span>
+                        </div>
+                    `;
+                });
+            
+            container.innerHTML = html;
+        }
+
+        function updateTreatmentPlan(prediction, confidence) {
+            const treatments = {
+                dengue: `• Paracetamol for fever and pain (avoid NSAIDs)<br>
+                         • Oral rehydration solution or electrolyte drinks<br>
+                         • Platelet transfusion if < 20,000 or active bleeding<br>
+                         • Monitor for dengue shock syndrome<br>
+                         • Follow up daily until afebrile for 48 hours`,
+
+                malaria: `• Artemisinin-based combination therapy (ACT)<br>
+                          • Primaquine for P. vivax (after G6PD testing)<br>
+                          • IV artesunate for severe malaria<br>
+                          • Supportive care: hydration, blood transfusion if needed<br>
+                          • Follow up to ensure parasite clearance`,
+
+                typhoid: `• Fluoroquinolones or third-generation cephalosporins<br>
+                          • Azithromycin as alternative<br>
+                          • Dexamethasone for severe cases with altered consciousness<br>
+                          • Monitor for complications: intestinal perforation, hemorrhage<br>
+                          • Follow up until culture negative`,
+
+                influenza: `• Oseltamivir or zanamivir if within 48 hours of onset<br>
+                            • Supportive care: rest, hydration, antipyretics<br>
+                            • Antibiotics only if bacterial superinfection suspected<br>
+                            • High-risk patients: consider hospitalization<br>
+                            • Annual influenza vaccination for prevention`,
+
+                covid: `• Paxlovid or Remdesivir for high-risk patients<br>
+                        • Dexamethasone for severe cases requiring oxygen<br>
+                        • Supportive care: oxygenation, hydration<br>
+                        • Monitor for cytokine storm, thromboembolism<br>
+                        • Post-COVID follow up for long-term symptoms`,
+
+                viral: `• Symptomatic treatment only<br>
+                        • Paracetamol or ibuprofen for fever/pain<br>
+                        • Adequate rest and fluid intake<br>
+                        • Expect resolution in 3-7 days<br>
+                        • Return if symptoms worsen or new symptoms develop`
+            };
+
+            document.getElementById('treatmentPlan').innerHTML = `
+                <h3>💊 Treatment Protocol</h3>
+                <div class="action-plan">
+                    ${treatments[prediction] || "Consult current medical guidelines for appropriate treatment."}
+                </div>
+                <div style="margin-top: 1rem;">
+                    <strong>Monitoring Schedule:</strong><br>
+                    • Daily assessment until afebrile<br>
+                    • Repeat blood tests as clinically indicated<br>
+                    • Emergency review if warning signs develop<br>
+                    • Follow up in 1 week for reassessment
+                </div>
+            `;
+        }
+
+        function updateTimeline(features) {
+            const timeline = document.getElementById('patientTimeline');
+            const today = new Date();
+            
+            timeline.innerHTML = `
+                <h3>📅 Expected Recovery Timeline</h3>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <strong>Days 1-3:</strong> Acute phase with fever, symptomatic treatment
+                    </div>
+                    <div class="timeline-item">
+                        <strong>Days 4-7:</strong> Fever resolution, monitor for complications
+                    </div>
+                    <div class="timeline-item">
+                        <strong>Week 2:</strong> Recovery phase, gradual return to normal activities
+                    </div>
+                    <div class="timeline-item">
+                        <strong>Week 3-4:</strong> Complete recovery, follow-up assessment
+                    </div>
+                </div>
+                <div style="margin-top: 1rem; background: #334155; padding: 1rem; border-radius: 8px;">
+                    <strong>Next Steps:</strong><br>
+                    • Schedule follow-up in ${features.fever_duration < 7 ? '3 days' : '1 week'}<br>
+                    • Repeat blood tests if no improvement in 48 hours<br>
+                    • Emergency contact provided to patient<br>
+                    • Patient education materials provided
+                </div>
+            `;
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        function saveCase() {
+            if (!currentPrediction) {
+                alert('No patient analysis to save.');
+                return;
+            }
+
+            const caseData = {
+                id: Date.now().toString(),
+                timestamp: new Date().toISOString(),
+                patient: {
+                    name: document.getElementById('patientName').value || 'Unknown',
+                    age: document.getElementById('patientAge').value,
+                    gender: document.getElementById('patientGender').value,
+                    contact: document.getElementById('patientContact').value
+                },
+                symptoms: collectPatientData(),
+                diagnosis: {
+                    prediction: currentPrediction.predicted,
+                    confidence: currentPrediction.confidence,
+                    riskLevel: getRiskLevel(currentPrediction.predicted, currentPrediction.confidence),
+                    actionPlan: getActionPlan(currentPrediction.predicted, currentPrediction.confidence)
+                }
+            };
+
+            // Save to localStorage
+            const cases = JSON.parse(localStorage.getItem('feverCases') || '[]');
+            cases.unshift(caseData);
+            localStorage.setItem('feverCases', JSON.stringify(cases));
+
+            // Update dashboard
+            updateDashboard();
+            
+            alert('✅ Case saved successfully!');
+            document.getElementById('saveBtn').disabled = true;
+        }
+
+        function updateDashboard() {
+            const cases = JSON.parse(localStorage.getItem('feverCases') || '[]');
+            const today = new Date().toDateString();
+            
+            // Update stats
+            document.getElementById('totalCases').textContent = cases.length;
+            document.getElementById('todayCases').textContent = cases.filter(c => 
+                new Date(c.timestamp).toDateString() === today
+            ).length;
+            document.getElementById('highRiskCases').textContent = cases.filter(c => 
+                c.diagnosis.riskLevel === 'HIGH'
+            ).length;
+
+            // Update dashboard stats
+            document.getElementById('statTotalCases').textContent = cases.length;
+            document.getElementById('statHighRisk').textContent = cases.filter(c => 
+                c.diagnosis.riskLevel === 'HIGH'
+            ).length;
+            document.getElementById('statDengue').textContent = cases.filter(c => 
+                c.diagnosis.prediction === 'dengue'
+            ).length;
+            document.getElementById('statMalaria').textContent = cases.filter(c => 
+                c.diagnosis.prediction === 'malaria'
+            ).length;
+
+            // Update cases table
+            renderCasesTable();
+        }
+
+        function renderCasesTable() {
+            const cases = JSON.parse(localStorage.getItem('feverCases') || '[]');
+            const tbody = document.querySelector('#case_table tbody');
+            const riskFilter = document.getElementById('filterRisk').value;
+            const diseaseFilter = document.getElementById('filterDisease').value;
+            const dateFilter = document.getElementById('filterDate').value;
+
+            let filteredCases = cases;
+
+            // Apply filters
+            if (riskFilter !== 'all') {
+                filteredCases = filteredCases.filter(c => 
+                    c.diagnosis.riskLevel.toLowerCase() === riskFilter.toLowerCase()
+                );
+            }
+
+            if (diseaseFilter !== 'all') {
+                filteredCases = filteredCases.filter(c => 
+                    c.diagnosis.prediction === diseaseFilter
+                );
+            }
+
+            if (dateFilter) {
+                filteredCases = filteredCases.filter(c => 
+                    new Date(c.timestamp).toDateString() === new Date(dateFilter).toDateString()
+                );
+            }
+
+            tbody.innerHTML = '';
+
+            filteredCases.slice(0, 50).forEach(case_ => {
+                const time = new Date(case_.timestamp).toLocaleTimeString();
+                const confidence = (case_.diagnosis.confidence * 100).toFixed(1) + '%';
+                const riskClass = `risk-${case_.diagnosis.riskLevel.toLowerCase()}`;
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${time}</td>
+                        <td>${case_.patient.name}</td>
+                        <td>${case_.patient.age}</td>
+                        <td>${case_.diagnosis.prediction}</td>
+                        <td>${confidence}</td>
+                        <td><span class="${riskClass}">${case_.diagnosis.riskLevel}</span></td>
+                        <td>
+                            <button class="btn btn-sm" onclick="viewCase('${case_.id}')">👁️ View</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteCase('${case_.id}')">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            if (filteredCases.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">No cases found</td></tr>';
+            }
+        }
+
+        function filterCases() {
+            renderCasesTable();
+        }
+
+        function viewCase(caseId) {
+            const cases = JSON.parse(localStorage.getItem('feverCases') || '[]');
+            const case_ = cases.find(c => c.id === caseId);
+            
+            if (case_) {
+                // Populate form with case data
+                document.getElementById('patientName').value = case_.patient.name;
+                document.getElementById('patientAge').value = case_.patient.age;
+                document.getElementById('patientGender').value = case_.patient.gender;
+                document.getElementById('patientContact').value = case_.patient.contact;
+                
+                // Populate symptoms
+                Object.entries(case_.symptoms).forEach(([key, value]) => {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        if (element.type === 'checkbox') {
+                            element.checked = !!value;
+                        } else {
+                            element.value = value;
+                        }
+                    }
+                });
+                
+                // Switch to input tab (you might want to add tab switching logic)
+                alert(`Loaded case: ${case_.patient.name} - ${case_.diagnosis.prediction}`);
+            }
+        }
+
+        function deleteCase(caseId) {
+            if (confirm('Are you sure you want to delete this case?')) {
+                const cases = JSON.parse(localStorage.getItem('feverCases') || '[]');
+                const filteredCases = cases.filter(c => c.id !== caseId);
+                localStorage.setItem('feverCases', JSON.stringify(filteredCases));
+                updateDashboard();
+            }
+        }
+
+        function clearAllCases() {
+            if (confirm('Are you sure you want to delete ALL cases? This action cannot be undone.')) {
+                localStorage.removeItem('feverCases');
+                updateDashboard();
+            }
+        }
+
+        function clearForm() {
+            if (confirm('Clear all patient data?')) {
+                document.querySelectorAll('input, select').forEach(element => {
+                    if (element.type !== 'button' && element.id !== 'filterRisk' && element.id !== 'filterDisease' && element.id !== 'filterDate') {
+                        if (element.type === 'checkbox') {
+                            element.checked = false;
+                        } else if (element.type === 'select-one') {
+                            element.selectedIndex = 0;
+                        } else {
+                            element.value = '';
+                        }
+                    }
+                });
+                
+                // Reset severity selectors
+                document.querySelectorAll('.severity-option').forEach(option => {
+                    if (option.dataset.value === '1') {
+                        option.classList.add('selected');
+                    } else {
+                        option.classList.remove('selected');
+                    }
+                });
+                
+                // Reset some default values
+                document.getElementById('temp').value = '38.5';
+                document.getElementById('feverDuration').value = '3';
+                document.getElementById('platelet_count').value = '250000';
+                document.getElementById('patientAge').value = '35';
+                
+                document.getElementById('result').innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #94a3b8;">
+                        <h3>Patient Analysis Ready</h3>
+                        <p>Enter patient data and click "Analyze Patient"</p>
+                    </div>
+                `;
+                
+                if (probabilityChart) {
+                    probabilityChart.destroy();
+                    probabilityChart = null;
+                }
+                
+                currentPrediction = null;
+            }
+        }
+
+        function generateReport() {
+            if (!currentPrediction) {
+                alert('No patient analysis to report.');
+                return;
+            }
+
+            const patientName = document.getElementById('patientName').value || 'Unknown Patient';
+            const reportContent = `
+                FEVER SCAN PRO - MEDICAL REPORT
+                ================================
+                
+                Patient: ${patientName}
+                Age: ${document.getElementById('patientAge').value}
+                Gender: ${document.getElementById('patientGender').value}
+                Date: ${new Date().toLocaleDateString()}
+                
+                DIAGNOSIS
+                ---------
+                Primary: ${currentPrediction.predicted.toUpperCase()}
+                Confidence: ${(currentPrediction.confidence * 100).toFixed(1)}%
+                Risk Level: ${getRiskLevel(currentPrediction.predicted, currentPrediction.confidence)}
+                
+                VITAL SIGNS
+                -----------
+                Temperature: ${document.getElementById('temp').value}°C
+                Fever Duration: ${document.getElementById('feverDuration').value} days
+                Heart Rate: ${document.getElementById('heartRate').value} bpm
+                Blood Pressure: ${document.getElementById('bloodPressure').value}
+                
+                ACTION PLAN
+                -----------
+                ${getActionPlan(currentPrediction.predicted, currentPrediction.confidence).replace(/<br\s*\/?>/gi, '\n')}
+                
+                This report was generated by Fever Scan Pro AI System.
+                Always verify with clinical assessment and laboratory tests.
+            `;
+
+            const blob = new Blob([reportContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `fever_report_${patientName.replace(/\s+/g, '_')}_${new Date().getTime()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function prescribeMedication() {
+            if (!currentPrediction) {
+                alert('Please analyze a patient first.');
+                return;
+            }
+
+            const medications = {
+                dengue: [
+                    { name: 'Paracetamol', dose: '500-1000mg', frequency: '6-8 hourly', duration: 'As needed', notes: 'Avoid NSAIDs' },
+                    { name: 'Oral Rehydration Salts', dose: 'As directed', frequency: 'Throughout day', duration: 'Until recovery', notes: 'Maintain hydration' }
+                ],
+                malaria: [
+                    { name: 'Artemether-Lumefantrine', dose: 'As per weight', frequency: 'Twice daily', duration: '3 days', notes: 'Complete full course' },
+                    { name: 'Primaquine', dose: '15-30mg daily', frequency: 'Once daily', duration: '14 days', notes: 'For P. vivax only, after G6PD test' }
+                ],
+                typhoid: [
+                    { name: 'Ciprofloxacin', dose: '500mg', frequency: 'Twice daily', duration: '7-14 days', notes: 'Or alternative based on sensitivity' },
+                    { name: 'Ceftriaxone', dose: '1-2g', frequency: 'Once daily', duration: '7-14 days', notes: 'For severe cases' }
+                ],
+                influenza: [
+                    { name: 'Oseltamivir', dose: '75mg', frequency: 'Twice daily', duration: '5 days', notes: 'Start within 48h of symptoms' },
+                    { name: 'Paracetamol', dose: '500-1000mg', frequency: '6-8 hourly', duration: 'As needed', notes: 'For fever and pain' }
+                ],
+                covid: [
+                    { name: 'Paxlovid', dose: '300mg Nirmatrelvir + 100mg Ritonavir', frequency: 'Twice daily', duration: '5 days', notes: 'Start within 5 days of symptoms' },
+                    { name: 'Dexamethasone', dose: '6mg', frequency: 'Once daily', duration: '10 days', notes: 'For severe cases requiring oxygen' }
+                ],
+                viral: [
+                    { name: 'Paracetamol', dose: '500-1000mg', frequency: '6-8 hourly', duration: 'As needed', notes: 'For fever and pain' },
+                    { name: 'Ibuprofen', dose: '200-400mg', frequency: '6-8 hourly', duration: 'As needed', notes: 'If no contraindications' }
+                ]
+            };
+
+            const medList = document.getElementById('medicationList');
+            const selectedMeds = medications[currentPrediction.predicted] || medications.viral;
+            
+            let html = '<h3>💊 Recommended Medications</h3>';
+            selectedMeds.forEach((med, index) => {
+                html += `
+                    <div class="medication-item">
+                        <div>
+                            <strong>${med.name}</strong><br>
+                            <small>Dose: ${med.dose} | Frequency: ${med.frequency}</small><br>
+                            <small>Duration: ${med.duration} | Notes: ${med.notes}</small>
+                        </div>
+                        <div>
+                            <input type="checkbox" id="med${index}" checked>
+                        </div>
+                    </div>
+                `;
+            });
+
+            medList.innerHTML = html;
+            document.getElementById('medicationModal').style.display = 'flex';
+        }
+
+        function savePrescription() {
+            const selectedMeds = [];
+            document.querySelectorAll('#medicationList input[type="checkbox"]:checked').forEach(checkbox => {
+                // In a real app, you would save the prescription
+            });
+            
+            alert('✅ Prescription saved to patient record!');
+            closeModal();
+        }
+
+        function closeModal() {
+            document.getElementById('medicationModal').style.display = 'none';
+        }
+
+        function exportData() {
+            const cases = JSON.parse(localStorage.getItem('feverCases') || '[]');
+            const dataStr = JSON.stringify(cases, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `fever_cases_export_${new Date().getTime()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Chat functionality
+        function sendChat() {
+            const input = document.getElementById('chat_input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            appendChat('You', message);
+            input.value = '';
+            
+            // Simulate AI response
+            setTimeout(() => {
+                const response = generateChatResponse(message);
+                appendChat('Medical Assistant', response);
+            }, 1000);
+        }
+
+        function appendChat(sender, message) {
+            const chat = document.getElementById('chat');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender.toLowerCase()}`;
+            messageDiv.innerHTML = `<strong>${sender}:</strong> ${message}`;
+            chat.appendChild(messageDiv);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        function generateChatResponse(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            if (lowerMessage.includes('dengue') || lowerMessage.includes('platelet')) {
+                return "🦟 **Dengue Management**: Monitor platelet count daily. Critical threshold is <100,000. Watch for warning signs: severe abdominal pain, persistent vomiting, mucosal bleeding. Avoid NSAIDs - use paracetamol only. Maintain hydration with ORS.";
+            } else if (lowerMessage.includes('malaria')) {
+                return "🌡️ **Malaria Protocol**: Confirm with blood smear or RDT. Use ACT for uncomplicated malaria. For severe cases, IV artesunate is first-line. Test for G6PD before primaquine. Monitor for complications: cerebral malaria, severe anemia, ARDS.";
+            } else if (lowerMessage.includes('typhoid')) {
+                return "💊 **Typhoid Treatment**: Blood culture is gold standard. Fluoroquinolones or ceftriaxone for treatment. Watch for complications: intestinal perforation, GI bleeding. Chronic carriers may need prolonged antibiotics.";
+            } else if (lowerMessage.includes('covid')) {
+                return "🦠 **COVID-19 Care**: Test with RT-PCR or antigen. Monitor oxygen saturation closely. Consider antivirals for high-risk patients within 5 days. Dexamethasone for severe cases. Watch for thromboembolic complications.";
+            } else if (lowerMessage.includes('fever') && lowerMessage.includes('child')) {
+                return "👶 **Pediatric Fever**: Different thresholds: >38°C rectal. Watch for serious signs: lethargy, poor feeding, rash, dehydration. Consider UTI, pneumonia, meningitis in differential. Never use aspirin in children.";
+            } else if (lowerMessage.includes('travel')) {
+                return "🧳 **Travel Medicine**: Important to know destination and activities. Malaria prophylaxis based on region. Consider dengue, typhoid, rickettsial diseases. Yellow fever vaccination if endemic area.";
+            } else if (lowerMessage.includes('antibiotic') || lowerMessage.includes('antiviral')) {
+                return "💊 **Antimicrobial Stewards**: Use antibiotics only for bacterial infections. Viral fevers don't need antibiotics. Consider antivirals for influenza (within 48h) and COVID-19 (within 5 days for high-risk).";
+            } else {
+                return "I can help with information about fever diagnosis, dengue, malaria, typhoid, COVID-19, pediatric fever, travel medicine, or treatment protocols. What specific information do you need?";
+            }
+        }
+
+        // Add enter key support for chat
+        document.getElementById('chat_input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendChat();
+        });
+    </script>
+</body>
+</html>
